@@ -1,47 +1,10 @@
-extern crate reqwest;
-
-use std::error::Error;
-use std::fmt;
-
 const TARGET: &str = "https://adventofcode.com/2020/day/1/input";
-const SESSION: &str = "53616c7465645f5ff2ccad970e7c40469c1c30bcd0570f4fcf985788bae11aa19a289f752642a87cf59fdad08d36644c";
-
-/// The Errors that may occur when processing a `test file numbers`.
-#[derive(Debug, Clone)]
-struct FileNumberError {
-    line: u32,
-    content: String,
-    msg: String,
-}
-
-impl Error for FileNumberError {}
-
-impl fmt::Display for FileNumberError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}: invalid numbers {}, {}",
-            self.line, self.content, self.msg
-        )
-    }
-}
-
-/// gets the payload from the distant url, with the correct session set.
-async fn fetch_payload() -> Result<String, reqwest::Error> {
-    let client = reqwest::Client::new();
-    let res = client
-        .get(TARGET)
-        .header("Cookie", format!("session={}", SESSION))
-        .send()
-        .await?;
-    Ok(res.text().await?)
-}
 
 /// parse a string into a u32, with custom error.
-fn custom_parse(s: &str) -> Result<u32, FileNumberError> {
+fn custom_parse(s: &str) -> Result<u32, common::LineError> {
     match s.parse::<u32>() {
         Ok(n) => Ok(n),
-        Err(e) => Err(FileNumberError {
+        Err(e) => Err(common::LineError {
             line: 0, // How to get the line number?
             content: String::from(s),
             msg: String::from(format!("{}", e)),
@@ -51,13 +14,13 @@ fn custom_parse(s: &str) -> Result<u32, FileNumberError> {
 
 /// gets the numbers from the distant payload.
 async fn fetch_numbers() -> Result<Vec<u32>, Box<dyn std::error::Error>> {
-    let body = fetch_payload().await?;
+    let body = common::fetch_payload(TARGET).await?;
     let lines = body
         .split("\n")
         // .inspect(|s| println!("XXXXXXXX {}", s))
         .filter(|s| *s != "")
         .map(|s| custom_parse(s))
-        .collect::<Result<Vec<u32>, FileNumberError>>()?;
+        .collect::<Result<Vec<u32>, common::LineError>>()?;
     Ok(lines)
 }
 

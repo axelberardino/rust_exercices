@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "common",
+    "aoc-2020-day1",
+]
