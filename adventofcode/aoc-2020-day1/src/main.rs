@@ -7,6 +7,7 @@ fn custom_parse(s: &str) -> Result<u32, common::LineError> {
         Err(e) => Err(common::LineError {
             line: 0, // How to get the line number?
             content: String::from(s),
+            char: 0,
             msg: String::from(format!("{}", e)),
         }),
     }

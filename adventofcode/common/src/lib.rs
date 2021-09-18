@@ -9,6 +9,7 @@ const SESSION: &str = "53616c7465645f5ff2ccad970e7c40469c1c30bcd0570f4fcf985788b
 #[derive(Debug, Clone)]
 pub struct LineError {
     pub line: u32,
+    pub char: u32,
     pub content: String,
     pub msg: String,
 }
