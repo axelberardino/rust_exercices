@@ -5,6 +5,8 @@ use std::fmt;
 
 const SESSION: &str = "53616c7465645f5ff2ccad970e7c40469c1c30bcd0570f4fcf985788bae11aa19a289f752642a87cf59fdad08d36644c";
 
+pub type AnyResult<T> = Result<T, Box<dyn std::error::Error>>;
+
 /// The Errors that may occur when processing a `test file numbers`.
 #[derive(Debug, Clone)]
 pub struct LineError {
