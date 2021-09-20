@@ -40,7 +40,7 @@ fn to_num(c: char) -> u8 {
 
 /// parse a string into a range expr, with custom error.
 /// Grammar is: [0-9]-[0-9] [a-z]: [a-z]+
-fn custom_parse(s: &str) -> Result<RangeExpr, common::LineError> {
+fn custom_parse(s: &str, line: u32) -> Result<RangeExpr, common::LineError> {
     let mut expr = RangeExpr {
         from: 0,
         to: 0,
@@ -70,7 +70,7 @@ fn custom_parse(s: &str) -> Result<RangeExpr, common::LineError> {
                     }
                     _ => {
                         return Err(common::LineError {
-                            line: 0, // How to get the line number?
+                            line: line,
                             char: i,
                             content: String::from(s),
                             msg: String::from("numbers wasn't expected"),
@@ -83,7 +83,7 @@ fn custom_parse(s: &str) -> Result<RangeExpr, common::LineError> {
                     StateMachine::From => {}
                     _ => {
                         return Err(common::LineError {
-                            line: 0, // How to get the line number?
+                            line: line,
                             char: i,
                             content: String::from(s),
                             msg: String::from("hyphen wasn't expected"),
@@ -98,7 +98,7 @@ fn custom_parse(s: &str) -> Result<RangeExpr, common::LineError> {
                     StateMachine::Symbol => {}
                     _ => {
                         return Err(common::LineError {
-                            line: 0, // How to get the line number?
+                            line: line,
                             char: i,
                             content: String::from(s),
                             msg: String::from("semi-colon wasn't expected"),
@@ -117,7 +117,7 @@ fn custom_parse(s: &str) -> Result<RangeExpr, common::LineError> {
                     }
                     _ => {
                         return Err(common::LineError {
-                            line: 0, // How to get the line number?
+                            line: line,
                             char: i,
                             content: String::from(s),
                             msg: String::from("space wasn't expected"),
@@ -140,7 +140,7 @@ fn custom_parse(s: &str) -> Result<RangeExpr, common::LineError> {
                     }
                     _ => {
                         return Err(common::LineError {
-                            line: 0, // How to get the line number?
+                            line: line,
                             char: i,
                             content: String::from(s),
                             msg: String::from("char wasn't expected"),
@@ -150,7 +150,7 @@ fn custom_parse(s: &str) -> Result<RangeExpr, common::LineError> {
             }
             _ => {
                 return Err(common::LineError {
-                    line: 0, // How to get the line number?
+                    line: line,
                     char: i,
                     content: String::from(s),
                     msg: format!("unexpected character {}", c),
@@ -169,7 +169,8 @@ async fn fetch_rules() -> Result<Vec<RangeExpr>, Box<dyn std::error::Error>> {
         .split("\n")
         // .inspect(|s| println!("XXXXXXXX {}", s))
         .filter(|s| *s != "")
-        .map(|s| custom_parse(s))
+        .enumerate()
+        .map(|(i, s)| custom_parse(s, i as u32))
         .collect::<Result<Vec<RangeExpr>, common::LineError>>()?;
     Ok(lines)
 }
@@ -217,7 +218,7 @@ mod tests {
             //     expr: String::from(""),
             // }),
             Err(common::LineError {
-                line: 0, // How to get the line number?
+                line: line,
                 char: 32,
                 content: String::from("toto"),
                 msg: format!("unexpected character {}", 'a'),

@@ -1,11 +1,11 @@
 const TARGET: &str = "https://adventofcode.com/2020/day/1/input";
 
 /// parse a string into a u32, with custom error.
-fn custom_parse(s: &str) -> Result<u32, common::LineError> {
+fn custom_parse(s: &str, i: u32) -> Result<u32, common::LineError> {
     match s.parse::<u32>() {
         Ok(n) => Ok(n),
         Err(e) => Err(common::LineError {
-            line: 0, // How to get the line number?
+            line: i, // How to get the line number?
             content: String::from(s),
             char: 0,
             msg: String::from(format!("{}", e)),
@@ -20,7 +20,8 @@ async fn fetch_numbers() -> Result<Vec<u32>, Box<dyn std::error::Error>> {
         .split("\n")
         // .inspect(|s| println!("XXXXXXXX {}", s))
         .filter(|s| *s != "")
-        .map(|s| custom_parse(s))
+        .enumerate()
+        .map(|(i, s)| custom_parse(s, i as u32))
         .collect::<Result<Vec<u32>, common::LineError>>()?;
     Ok(lines)
 }
